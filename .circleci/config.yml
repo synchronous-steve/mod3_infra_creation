@@ -39,7 +39,7 @@ jobs:
             - inventory
   configure_infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.11-rc-alpine
     steps:
       - checkout
       - add_ssh_keys:
@@ -55,7 +55,6 @@ jobs:
           name: Run Playbook to configure server
           command: |
             ansible-playbook -i ~/inventory main-remote.yml
-
 
 workflows:
   myWorkflow:
