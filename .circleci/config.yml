@@ -7,14 +7,14 @@ orbs:
 # Define the jobs we want to run for this project
 commands:
   destroy_environment:
-    parameters:
-      run_when:
-        type: string
-        default: on_fail
+    # parameters:
+    #   run_when:
+    #     type: string
+    #     default: on_fail
     steps:
       - run:
           name: Destroy environment after failure
-          when: << parameters.run_when >>
+          # when: << parameters.run_when >>
           command: |
             aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
 jobs:
@@ -85,7 +85,7 @@ jobs:
             #   return 1
             # fi
       - destroy_environment:
-          run_when: on_fail
+          when: on_fail
 
 workflows:
   myWorkflow:
