@@ -65,7 +65,7 @@ jobs:
             ansible-playbook -i ~/inventory main-remote.yml
   smoke_test:
     docker:
-      - image: alpine:latest
+      - image: amazon/aws-cli #alpine:latest
     steps:
       # - run: apk add --update curl
       - run:
@@ -93,6 +93,8 @@ workflows:
       # - configure_infrastructure:
       #     requires:
       #       - update_inventory_list
-      - smoke_test
+      - smoke_test:
+          requires:
+            - create_infrastructure
 
       
