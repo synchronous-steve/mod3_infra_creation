@@ -6,13 +6,6 @@ orbs:
   # aws-cli: circleci/aws-cli@2.0.3
 # Define the jobs we want to run for this project
 jobs:
-  # myjob1:  # Choose any name, such as `build`
-  #     # The primary container, where your job's commands will run
-  #     docker:
-  #       - image: 
-  #     steps:
-  #       - checkout # check out the code in the project directory
-  #       - run: echo "hello world" # run the `echo` command
   create_infrastructure: 
       docker:
         - image: amazon/aws-cli
@@ -25,11 +18,54 @@ jobs:
                 --template-file template.yml \
                 --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
 #                --region us-east-1
-# Sequential workflow
+  update_inventory_list:
+    docker:
+      - image: cimg/aws:2022.06
+    steps:
+      - run:
+          command: |
+            export AWS_ACCESS_KEY_ID=${aws_secret_id}
+            export AWS_SECRET_ACCESS_KEY=${aws_access_key}
+            export AWS_DEFAULT_REGION=us-east-1
+            touch ~/inventory
+            echo [all] > ~/inventory
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Project,Values=udacity" \
+              --output text >> ~/inventory
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - inventory
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "e3:d2:59:7a:82:97:7d:e5:c4:b4:86:31:a1:83:63:fc"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Run Playbook to configure server
+          command: |
+            ansible-playbook -i ~/inventory main-remote.yml
+
+
 workflows:
-  # Name the workflow
   myWorkflow:
     jobs:
-      # - myjob1
-      # - myjob2
       - create_infrastructure
+      - update_inventory_list:
+          requires:
+            - create_infrastructure
+      - configure_infrastructure:
+          requires:
+            - update_inventory_list
+
+      
