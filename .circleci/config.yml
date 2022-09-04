@@ -82,5 +82,6 @@ workflows:
       # - configure_infrastructure:
       #     requires:
       #       - update_inventory_list
+      - smoke_test
 
       
