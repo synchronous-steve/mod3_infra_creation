@@ -89,7 +89,7 @@ jobs:
             # fi
       - destroy_environment:
           run_when: on_fail
-          
+
   # Executes the bucket.yml - Deploy an S3 bucket, and interface with that bucket to synchronize the files between local and the bucket.
   # Note that the `--parameter-overrides` let you specify a value that override parameter value in the bucket.yml template file.
   create_and_deploy_front_end:
@@ -105,7 +105,7 @@ jobs:
             --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
       # Uncomment the step below if yoou wish to upload all contents of the current directory to the S3 bucket
-      # - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+      - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
 
   # Fetch and save the pipeline ID (bucket ID) responsible for the last release.
   get_last_deployment_id:
@@ -155,8 +155,8 @@ jobs:
           # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
           command: |
             export OldBucketID=$(cat ~/textfile.txt)
-            aws s3 rm "s3://${OldBucketID}" --recursive
-          #  aws cloudformation delete-stack --stack-name production-distro
+            export OldStackName=$(stack-create-bucket-${OldBucketID: -7})
+            aws cloudformation delete-stack --stack-name stack-create-bucket-${OldStackName}
 
 workflows:
   myWorkflow:
