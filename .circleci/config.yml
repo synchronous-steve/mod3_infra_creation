@@ -155,8 +155,8 @@ jobs:
           # Similarly, you can create and use $OldStackID environment variable in place of production-distro 
           command: |
             export OldBucketID=$(cat ~/textfile.txt)
-            export OldStackName=$(stack-create-bucket-${OldBucketID: -7})
-            aws cloudformation delete-stack --stack-name stack-create-bucket-${OldStackName}
+            export OldStackName="$(stack-create-bucket-${OldBucketID: -7})
+            aws cloudformation delete-stack --stack-name ${OldStackName}
 
 workflows:
   myWorkflow:
