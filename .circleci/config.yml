@@ -37,9 +37,6 @@ jobs:
     steps:
       - run:
           command: |
-            # export AWS_ACCESS_KEY_ID=${aws_secret_id}
-            # export AWS_SECRET_ACCESS_KEY=${aws_access_key}
-            # export AWS_DEFAULT_REGION=us-east-1
             touch ~/inventory
             echo [all] > ~/inventory
             aws ec2 describe-instances \
@@ -113,7 +110,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum install -y tar gzip
+ #     - run: yum install -y tar gzip
       - run:
           name: Fetch and save the old pipeline ID (bucket name) responsible for the last release.
           command: |
@@ -146,7 +143,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum install -y tar gzip
+ #     - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
       - run:
@@ -156,6 +153,7 @@ jobs:
           command: |
             export OldBucketID=$(cat ~/textfile.txt)
             export OldStackName=$(echo "stack-create-bucket-${OldBucketID: -7}")
+            aws s3 rm "s3://${OldBucketID}" --recursive
             aws cloudformation delete-stack --stack-name ${OldStackName}
 
 workflows:
