@@ -11,3 +11,4 @@
   become_user: root
   roles:
    - setup
+   - node_exporter
